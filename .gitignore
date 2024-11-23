@@ -1,0 +1,7 @@
+memconfig*
+led_display.sim
+led_display.runs
+led_display.hw
+led_display.cache
+led_display.ip_user_files
+
