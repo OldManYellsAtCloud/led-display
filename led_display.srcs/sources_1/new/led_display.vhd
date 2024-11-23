@@ -209,6 +209,65 @@ begin
 	end if;
 end process char_switcher;
 
+side_decoration: process(internal_display_clock)
+variable cnt1: integer := 0;
+variable state: integer range 0 to 7 := 0;
+begin
+
+if rising_edge(internal_display_clock) then
+	if cnt1 = 250000 then
+		cnt1 := 0;
+		if state = 7 then
+			state := 0;
+		else
+			state := state + 1;
+		end if;
+		
+		-- top row
+		for i in 0 to 63 loop		
+			if (i - state) mod 8 < 4 then
+				framebuffer(i) <= '1';
+			else
+				framebuffer(i) <= '0';
+			end if;
+		end loop;
+		
+		-- right side
+		for i in 1 to 30 loop
+			if (i - state + 7) mod 8 < 4 then
+				framebuffer(i * 64 + 63) <= '1';
+			else
+				framebuffer(i * 64 + 63) <= '0';
+			end if;
+		end loop;
+		
+		-- bottom row
+		for i in 63 downto 0 loop
+			if (63 - i - state + 2) mod 8 > 3 then
+				framebuffer(31 * 64 + i) <= '1';
+			else
+				framebuffer(31 * 64 + i) <= '0';
+			end if;
+		end loop;
+		
+		-- left side
+		for i in 30 downto 1 loop
+			if (30 - i - state + 2) mod 8 > 3 then
+				framebuffer(i * 64) <= '1';
+			else
+				framebuffer(i * 64) <= '0';
+			end if;
+		end loop;
+		
+		
+	else
+		cnt1 := cnt1 + 1;
+	end if;
+end if;
+
+
+end process side_decoration;
+
 
 --The main statemachine, the heart. This is described in the README.
 --But also, it's not that long.
